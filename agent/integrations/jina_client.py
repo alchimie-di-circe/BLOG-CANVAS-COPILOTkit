@@ -1,8 +1,11 @@
 """
-Jina.ai MCP Server Integration
+Jina.ai REST API Integration
 
-Official Jina MCP: https://github.com/jina-ai/MCP
-Endpoint: https://mcp.jina.ai/sse
+This client uses Jina's public REST APIs for search and content extraction.
+- Search API: https://s.jina.ai
+- Reader API: https://r.jina.ai
+
+Official Jina API Docs: https://jina.ai/
 """
 
 import os
@@ -11,11 +14,11 @@ from typing import List, Dict, Optional
 from datetime import datetime
 
 
-class JinaMCPClient:
-    """Client for Jina.ai MCP server."""
+class JinaAPIClient:
+    """Client for Jina.ai REST APIs (search and reader)."""
 
     def __init__(self):
-        """Initialize Jina MCP client."""
+        """Initialize Jina API client."""
         self.base_url = "https://api.jina.ai/v1"
         self.api_key = os.getenv("JINA_API_KEY", "")
         self.headers = {}
@@ -121,11 +124,11 @@ class JinaMCPClient:
         Returns:
             List of academic papers
         """
-        # This would use Jina MCP's search_arxiv tool
-        # For now, return empty - requires MCP protocol integration
+        # Note: ArXiv search via Jina API not yet implemented
+        # Future enhancement: Use Jina's arXiv search endpoint
         print(f"Jina arXiv search: {query} (not yet implemented)")
         return []
 
 
 # Singleton instance
-jina_client = JinaMCPClient()
+jina_client = JinaAPIClient()

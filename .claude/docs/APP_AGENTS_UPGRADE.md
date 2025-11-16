@@ -17,7 +17,16 @@
 
 ### Overview
 
-L'architettura attuale usa solo **Tavily** per le ricerche web. È possibile estenderla per supportare **ricerche parallele su più MCP servers** (Jina.ai, EXA, Brave Search, ecc.) con controllo utente sui provider da utilizzare.
+L'architettura ora supporta **ricerche parallele su più provider** (Tavily, Jina.ai) con controllo utente sui provider da utilizzare. 
+
+**Stato attuale (v1.0):**
+- Tavily: Web search via API
+- Jina: Web search e content extraction via REST APIs
+
+**Futuro possibile:**
+- Integrazione MCP per Jina (15 tools aggiuntivi)
+- Altri provider (EXA, Brave Search, ecc.)
+- Screenshot, image search, semantic deduplication
 
 ### Architettura Proposta
 
@@ -66,10 +75,37 @@ Query5→Tavily ┘
 
 ## Implementation Guide: Multi-Provider Search
 
-### Step 1: Configure MCP Servers
+### Current Implementation (v1.0) - REST APIs
+
+**Jina Integration via REST:**
+
+```python
+# agent/integrations/jina_client.py
+class JinaAPIClient:
+    """Client for Jina.ai REST APIs."""
+    
+    async def search_web(self, query: str) -> List[Dict]:
+        """Web search via https://s.jina.ai"""
+        
+    async def read_url(self, url: str) -> Dict:
+        """Content extraction via https://r.jina.ai"""
+```
+
+**Usage:**
+```bash
+# Set API key (optional, for higher rate limits)
+export JINA_API_KEY="your_key"
+
+# Agent automatically uses REST APIs
+# No MCP configuration needed
+```
+
+### Future Enhancement - MCP Protocol
+
+For future MCP integration:
 
 ```bash
-# Add Jina.ai MCP (hypothetical endpoint)
+# Add Jina.ai MCP (when migrating to MCP protocol)
 claude mcp add --transport sse jina-search https://mcp.jina.ai/sse
 
 # Add EXA MCP
@@ -166,11 +202,18 @@ async def multi_provider_search(queries: List[SearchQuery], state: Dict):
             return []
 
     async def jina_search_fn(query: SearchQuery):
-        """Execute Jina search (via MCP)."""
+        """Execute Jina search (via REST API or future MCP)."""
         try:
-            # TODO: Implement Jina MCP client integration
-            # For now, return empty results
-            print(f"Jina search not yet implemented: {query.query}")
+            # Current implementation: REST API
+            from integrations.jina_client import jina_client
+            results = await jina_client.search_web(query.query, max_results=10)
+            return results
+            
+            # Future: MCP integration
+            # response = await jina_mcp_client.call_tool("search_web", {"query": query.query})
+            # return response.get('results', [])
+        except Exception as e:
+            print(f"Jina search error: {e}")
             return []
         except Exception as e:
             print(f"Jina error: {e}")
@@ -954,9 +997,9 @@ pnpm dev
 - Can be done in 1-2 days
 
 **Action Items:**
-1. Create `multi_provider_search.py` tool
-2. Configure additional MCP servers (Jina, EXA, Brave)
-3. Update system prompt with provider guidance
+1. ✅ DONE: Created `intelligent_search.py` tool with Jina REST API integration
+2. Optional: Configure MCP servers for future enhancements (Jina MCP, EXA, Brave)
+3. ✅ DONE: Updated system prompt with provider guidance
 4. Test with various query combinations
 
 #### **Phase 2: Modularize with Subgraphs (Medium-term)**
@@ -1075,8 +1118,8 @@ Phase 3: Full multi-agent ecosystem (4 weeks)
 ### Resources Needed
 
 **For Multi-Provider Search:**
-- API keys for Jina, EXA, Brave (if not using MCP)
-- MCP server configurations
+- API keys for Jina, EXA, Brave (current: REST APIs; future: MCP optional)
+- MCP server configurations (optional, for future upgrade)
 - Testing budget for API calls
 
 **For Subgraphs:**
