@@ -1,1 +1,1 @@
-# Integrations module for external MCP servers and APIs
+# Integrations module for external APIs and services

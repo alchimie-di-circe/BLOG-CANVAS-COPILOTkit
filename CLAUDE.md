@@ -63,7 +63,7 @@ src/
 - **LLM**: OpenAI (via langchain-openai)
 - **Search**:
   - Tavily API (general web, news)
-  - Jina.ai MCP (academic, technical, semantic search)
+  - Jina.ai REST APIs (web search, content extraction)
   - Intelligent multi-provider parallelization
 - **Integration**: CopilotKit Python SDK v0.1.70
 
@@ -77,7 +77,7 @@ ResearchAgent StateGraph:
 
 **Tools**:
 - `intelligent_search`: Multi-provider search with user-controlled provider selection (NEW)
-  - Supports Tavily (news, general) and Jina (academic, technical)
+  - Supports Tavily (news, general) and Jina REST APIs (web search, content extraction)
   - User can specify providers or let agent decide based on search type
   - Automatic parallelization across providers
 - `tavily_search`: Web search (legacy, Tavily-only)

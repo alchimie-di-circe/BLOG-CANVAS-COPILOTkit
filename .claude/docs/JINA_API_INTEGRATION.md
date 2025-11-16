@@ -1,54 +1,50 @@
-# Jina.ai MCP Integration Guide
+# Jina.ai REST API Integration Guide
 
-This document explains the integration of Jina.ai MCP server for enhanced search capabilities in the ANA research agent.
+This document explains the integration of Jina.ai REST APIs for enhanced search capabilities in the ANA research agent.
 
 ## Overview
 
 The agent now supports **intelligent multi-provider search** with user-controlled provider selection. Users can choose between:
 - **Tavily**: General web search, news, real-time content
-- **Jina**: Academic papers, technical documentation, semantic search
+- **Jina**: Web search and content extraction via REST APIs
 
 The agent automatically parallelizes searches across selected providers for optimal speed and source diversity.
 
-## Jina.ai MCP Server
+## Jina.ai REST APIs
 
-**Official MCP**: https://github.com/jina-ai/MCP
-**Endpoint**: https://mcp.jina.ai/sse
+This integration uses Jina's public REST APIs:
+- **Search API**: https://s.jina.ai - Web search functionality
+- **Reader API**: https://r.jina.ai - Content extraction from URLs
 
-### Available Tools (via Jina MCP)
+**Official Documentation**: https://jina.ai/
 
-The Jina MCP server provides 15 tools:
+### Available Features
 
-**Web & Content:**
-- `read_url` - Extract markdown from web pages
-- `capture_screenshot_url` - Generate page screenshots
-- `search_web` - Search the internet
-- `parallel_read_url` - Batch content extraction
-- `parallel_search_web` - Concurrent web searches
+The integration currently provides:
 
-**Academic Research:**
-- `search_arxiv` - Query academic preprints
-- `parallel_search_arxiv` - Batch arXiv searches
+**Web Search (`search_web`)**
+- General web search
+- Returns URL, title, content, and relevance score
+- Fast parallel execution
 
-**Media & Analysis:**
-- `search_images` - Web image discovery
-- `expand_query` - Query enhancement
-- `guess_datetime_url` - Page update detection
+**Content Extraction (`read_url`)**
+- Extract markdown content from any URL
+- Clean, readable format
+- Supports various content types
 
-**ML Operations:**
-- `sort_by_relevance` - Reranking via API
-- `deduplicate_strings` - Semantic deduplication
-- `deduplicate_images` - Visual deduplication
-- `primer` - Context/datetime information
+**Future Enhancements**
+- Academic paper search (arXiv integration)
+- Technical documentation search
+- Enhanced relevance ranking
 
 ## Setup Instructions
 
 ### 1. Get Jina API Key (Optional)
 
-While Jina MCP works without authentication, an API key provides:
+While Jina APIs work without authentication, an API key provides:
 - Higher rate limits
 - Better performance
-- Access to premium features
+- Priority processing
 
 Get your API key from: https://jina.ai/
 
@@ -67,29 +63,6 @@ The required `httpx` package is already in `requirements.txt`:
 ```bash
 cd agent
 pip install -r requirements.txt
-```
-
-### 4. Configure MCP Server (Optional for Direct MCP Usage)
-
-For Claude Code or other MCP-compatible clients:
-
-```bash
-claude mcp add --transport sse jina https://mcp.jina.ai/sse
-```
-
-Or manually configure in `~/.config/claude/config.json`:
-
-```json
-{
-  "mcpServers": {
-    "jina-mcp-server": {
-      "url": "https://mcp.jina.ai/sse",
-      "headers": {
-        "Authorization": "Bearer ${JINA_API_KEY}"
-      }
-    }
-  }
-}
 ```
 
 ## Usage
@@ -158,6 +131,7 @@ The agent supports four search types:
 
 1. **general**: General web search
    - Default providers: Tavily + Jina
+   - Uses both for diverse results
 
 2. **news**: Recent news articles
    - Default provider: Tavily
@@ -165,7 +139,7 @@ The agent supports four search types:
 
 3. **academic**: Academic papers, research
    - Default provider: Jina
-   - Uses arXiv search when available
+   - Future: ArXiv integration planned
 
 4. **technical**: Technical documentation, specs
    - Default provider: Jina
@@ -199,9 +173,9 @@ def select_providers(search_type: str, user_providers: Optional[List[str]]) -> L
     elif search_type == "news":
         return ["tavily"]  # Tavily better for news
     elif search_type == "academic":
-        return ["jina"]  # Jina better for academic
+        return ["jina"]  # Jina for academic
     elif search_type == "technical":
-        return ["jina"]  # Jina better for technical
+        return ["jina"]  # Jina for technical
     else:
         return ["tavily", "jina"]  # Default: both
 ```
@@ -289,7 +263,7 @@ ALWAYS respect user's search provider preferences:
 agent/
 ├── integrations/
 │   ├── __init__.py
-│   └── jina_client.py          # Jina MCP client wrapper
+│   └── jina_client.py          # Jina REST API client
 ├── tools/
 │   ├── intelligent_search.py   # Main multi-provider search tool
 │   ├── tavily_search.py        # Legacy Tavily-only search
@@ -302,9 +276,9 @@ agent/
 ### Key Functions
 
 **`agent/integrations/jina_client.py`**
-- `JinaMCPClient.search_web()` - Web search via Jina
-- `JinaMCPClient.read_url()` - Content extraction via Jina Reader
-- `JinaMCPClient.search_arxiv()` - Academic paper search
+- `JinaAPIClient.search_web()` - Web search via Jina Search API
+- `JinaAPIClient.read_url()` - Content extraction via Jina Reader API
+- `JinaAPIClient.search_arxiv()` - Academic paper search (planned)
 
 **`agent/tools/intelligent_search.py`**
 - `intelligent_search()` - Main tool for multi-provider search
@@ -363,35 +337,62 @@ pip install httpx>=0.27.0
 
 Potential improvements for Jina integration:
 
-1. **Full MCP Protocol Integration**
-   - Use MCP SDK for direct tool access
-   - Access all 15 Jina MCP tools
-   - Screenshot capture for visual content
+1. **MCP Protocol Integration**
+   - Migrate to official Jina MCP server (https://github.com/jina-ai/MCP)
+   - Access all 15 MCP tools via SSE protocol
+   - Enable screenshot capture, image search, and more
 
 2. **Advanced Search Features**
    - Image search integration
    - Query expansion for better results
-   - Semantic deduplication
+   - Semantic deduplication across results
 
 3. **Academic Research**
-   - Direct arXiv integration
-   - Citation extraction
+   - Direct arXiv API integration
+   - Citation extraction and formatting
    - Paper recommendation engine
 
 4. **Content Enhancement**
    - Parallel URL reading for faster extraction
    - Screenshot generation for visual references
-   - Relevance reranking
+   - Relevance reranking with ML models
+
+## Technical Notes
+
+### Why REST API Instead of MCP?
+
+This implementation uses Jina's public REST APIs instead of the MCP protocol for:
+- **Simplicity**: No additional protocol dependencies
+- **Lightweight**: Direct HTTP calls via httpx
+- **Fast integration**: Quick to implement and test
+
+### Migration Path to MCP
+
+To upgrade to full MCP integration:
+
+1. Add MCP dependencies:
+   ```bash
+   pip install mcp sse-starlette
+   ```
+
+2. Replace REST client with MCP client:
+   ```python
+   from mcp import MCPClient
+   client = MCPClient("https://mcp.jina.ai/sse")
+   ```
+
+3. Update tool calls to use MCP protocol
+4. Access all 15 Jina MCP tools
 
 ## References
 
-- **Jina MCP GitHub**: https://github.com/jina-ai/MCP
 - **Jina.ai Website**: https://jina.ai/
 - **Jina Reader**: https://jina.ai/reader/
-- **MCP Specification**: https://modelcontextprotocol.io/
+- **Jina Search**: https://s.jina.ai
+- **Jina MCP (for future upgrade)**: https://github.com/jina-ai/MCP
 
 ---
 
 **Last Updated**: 2025-11-16
 **Version**: 1.0
-**Status**: Production Ready
+**Status**: Production Ready (REST API Implementation)

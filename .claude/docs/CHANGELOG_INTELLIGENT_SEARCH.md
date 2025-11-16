@@ -9,7 +9,7 @@
 **New Feature**: User-controlled multi-provider search with intelligent parallelization
 
 **Key Capabilities:**
-- Support for multiple search providers (Tavily, Jina.ai MCP)
+- Support for multiple search providers (Tavily, Jina.ai REST APIs)
 - User can specify which providers to use for each search
 - Agent intelligently selects providers based on search type when not specified
 - Automatic parallelization across all selected providers
@@ -21,7 +21,7 @@
 agent/
 ├── integrations/
 │   ├── __init__.py                    # NEW: Integrations module
-│   └── jina_client.py                 # NEW: Jina MCP client wrapper
+│   └── jina_client.py                 # NEW: Jina REST API client
 └── tools/
     └── intelligent_search.py          # NEW: Intelligent search tool
 ```
@@ -42,13 +42,13 @@ agent/
 
 **CLAUDE.md**
 - Updated tools documentation
-- Added Jina.ai MCP integration details
+- Added Jina.ai REST API integration details
 - Updated environment variables section
 
 #### 📚 Documentation
 
 **New Documents:**
-- `.claude/docs/JINA_MCP_INTEGRATION.md` - Complete integration guide
+- `.claude/docs/JINA_API_INTEGRATION.md` - Complete integration guide
 - `.claude/docs/APP_AGENTS_UPGRADE.md` - Future architecture evolution guide
 - `.claude/docs/CHANGELOG_INTELLIGENT_SEARCH.md` - This changelog
 
