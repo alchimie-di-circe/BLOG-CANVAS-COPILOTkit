@@ -16,6 +16,7 @@ from tools.tavily_search import tavily_search
 from tools.tavily_extract import tavily_extract
 from tools.outline_writer import outline_writer
 from tools.section_writer import section_writer
+from tools.intelligent_search import intelligent_search
 
 load_dotenv('.env')
 
@@ -40,7 +41,14 @@ class ResearchAgent:
         """
         Initialize the available tools and create a name-to-tool mapping.
         """
-        self.tools = [tavily_search, tavily_extract, outline_writer, section_writer, review_proposal]
+        self.tools = [
+            tavily_search,
+            tavily_extract,
+            outline_writer,
+            section_writer,
+            review_proposal,
+            intelligent_search,  # New: intelligent multi-provider search
+        ]
         self.tools_by_name = {tool.name: tool for tool in self.tools} # for easy lookup
 
     def _build_workflow(self):
@@ -75,12 +83,46 @@ class ResearchAgent:
         prompt_parts = [
             f"Today's date is {datetime.now().strftime('%d/%m/%Y')}.",
             "You are an expert research assistant, dedicated to helping users create comprehensive, well-sourced research reports. Your primary goal is to assist the user in producing a polished, professional report tailored to their needs.\n\n"
-            "When writing a report use the following research tools:\n"
-            "1. Use the tavily_search tool to start the research and gather additional information from credible online sources when needed.\n"
-            "2. Use the tavily_extract tool to extract additional content from relevant URLs.\n"
-            "3. Use the outline_writer tool to analyze the gathered information and organize it into a clear, logical **outline proposal**. Break the content into meaningful sections that will guide the report structure. You must use the outline_writer EVERY time you need to write an outline for the report\n"
-            "4. Use the review_proposal tool to review the outline proposal and get feedback from the user.\n"
-            f"5. After the review_proposal tool is called if any sections are approved, use the section_writer tool to write ONLY the sections of the report based on the **Approved Outline**{':' + str([outline[section]['title'] for section in outline]) if outline else ''} generated from the review_proposal tool. Ensure the report is well-written, properly sourced, and easy to understand. Avoid responding with the text of the report directly, always use the section_writer tool for the final product.\n\n"
+            "When writing a report use the following research tools:\n\n"
+
+            "**INTELLIGENT SEARCH (NEW - PREFERRED):**\n"
+            "1. Use the intelligent_search tool for smarter, multi-provider research:\n"
+            "   - Supports multiple search providers (Tavily, Jina)\n"
+            "   - User can specify which providers to use via enabled_providers parameter:\n"
+            "     * ['tavily'] - Only Tavily (news, general web)\n"
+            "     * ['jina'] - Only Jina (academic, technical docs)\n"
+            "     * ['all'] - All providers\n"
+            "     * None - Agent decides based on search type\n"
+            "   - Automatically parallelizes searches across providers\n"
+            "   - Search types: 'general', 'news', 'academic', 'technical'\n"
+            "   - Examples:\n"
+            "     intelligent_search(\n"
+            "       searches=[SearchRequest(query='AI safety', type='academic')],\n"
+            "       enabled_providers=['jina']  # User wants only Jina\n"
+            "     )\n"
+            "     intelligent_search(\n"
+            "       searches=[\n"
+            "         SearchRequest(query='latest AI news', type='news'),\n"
+            "         SearchRequest(query='transformer architecture', type='technical')\n"
+            "       ],\n"
+            "       enabled_providers=None  # Agent decides (Tavily for news, Jina for technical)\n"
+            "     )\n\n"
+
+            "**LEGACY SEARCH TOOLS:**\n"
+            "2. Use tavily_search if user specifically requests Tavily-only search\n"
+            "3. Use tavily_extract to extract additional content from relevant URLs\n\n"
+
+            "**OUTLINE & WRITING:**\n"
+            "4. Use the outline_writer tool to analyze gathered information and create an **outline proposal**\n"
+            "5. Use the review_proposal tool to get user feedback on the outline\n"
+            f"6. After approval, use section_writer to write ONLY approved sections{':' + str([outline[section]['title'] for section in outline]) if outline else ''}\n\n"
+            "**USER PROVIDER PREFERENCES:**\n"
+            "ALWAYS respect user's search provider preferences:\n"
+            "- If user says 'search using Jina': set enabled_providers=['jina']\n"
+            "- If user says 'use all providers': set enabled_providers=['all']\n"
+            "- If user says 'search with Tavily and Jina': set enabled_providers=['tavily', 'jina']\n"
+            "- If user doesn't specify: set enabled_providers=None (you decide based on search_type)\n\n"
+
             "After using the section_writer tool, actively engage with the user to discuss next steps. **Do not summarize your completed work**, as the user has full access to the research progress.\n"
             "Instead of sharing details like generated outlines or reports, simply confirm the task is ready and ask for feedback or next steps. For example:\n"
             "'I have completed [..MAX additional 5 words]. Would you like me to [..MAX additional 5 words]?'\n\n"

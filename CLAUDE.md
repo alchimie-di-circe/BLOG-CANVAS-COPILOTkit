@@ -61,8 +61,11 @@ src/
 - **Framework**: LangGraph (workflow orchestration)
 - **Language**: Python 3.12
 - **LLM**: OpenAI (via langchain-openai)
-- **Search**: Tavily API
-- **Integration**: CopilotKit Python SDK v0.1.39
+- **Search**:
+  - Tavily API (general web, news)
+  - Jina.ai MCP (academic, technical, semantic search)
+  - Intelligent multi-provider parallelization
+- **Integration**: CopilotKit Python SDK v0.1.70
 
 **Agent Architecture**:
 ```python
@@ -73,7 +76,11 @@ ResearchAgent StateGraph:
 ```
 
 **Tools**:
-- `tavily_search`: Web search
+- `intelligent_search`: Multi-provider search with user-controlled provider selection (NEW)
+  - Supports Tavily (news, general) and Jina (academic, technical)
+  - User can specify providers or let agent decide based on search type
+  - Automatic parallelization across providers
+- `tavily_search`: Web search (legacy, Tavily-only)
 - `tavily_extract`: Content extraction from URLs
 - `outline_writer`: Generate research outline
 - `section_writer`: Write report sections
@@ -139,6 +146,7 @@ NEXT_PUBLIC_COPILOT_CLOUD_API_KEY=your_copilot_cloud_key
 ```bash
 OPENAI_API_KEY=your_key
 TAVILY_API_KEY=your_key
+JINA_API_KEY=your_key  # Optional: Higher rate limits, better performance
 LANGSMITH_API_KEY=your_key
 ```
 

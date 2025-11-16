@@ -11,3 +11,4 @@ python-dotenv
 json5
 copilotkit==0.1.70
 langgraph-cli==0.1.71
+httpx>=0.27.0
