@@ -6,6 +6,8 @@ This directory contains Claude Code customizations for the BLOG-CANVAS-COPILOTki
 
 ```
 .claude/
+├── agents/             # Specialized AI agents
+│   └── copilotkit-expert.md   # CopilotKit Expert Agent
 ├── commands/           # Custom slash commands
 │   ├── start-dev.md           # Start full dev environment
 │   ├── check-health.md        # Health check all services
@@ -15,10 +17,18 @@ This directory contains Claude Code customizations for the BLOG-CANVAS-COPILOTki
 │   ├── copilotkit-docs.md     # CopilotKit documentation search
 │   ├── copilotkit-integrate.md # CopilotKit integration guide
 │   └── copilotkit-debug.md    # CopilotKit debugging helper
-├── skills/             # Custom skills
-│   └── copilotkit-expert.md   # CopilotKit Expert Agent
-├── copilotkit-patterns.md # CopilotKit patterns & best practices
-├── COPILOTKIT_PLUGIN.md   # CopilotKit plugin documentation
+├── docs/               # Documentation files
+│   ├── COPILOTKIT_PLUGIN.md   # CopilotKit plugin documentation
+│   ├── QUICKSTART.md          # Quick start guide
+│   ├── copilotkit-patterns.md # CopilotKit patterns & best practices
+│   ├── MCP_SETUP.md           # MCP setup guide
+│   └── PLUGIN_COMPLIANCE.md   # Plugin compliance documentation
+├── marketplace/        # Marketplace metadata
+│   ├── README.md              # Marketplace listing
+│   ├── icon.svg               # Plugin icon
+│   └── screenshots/           # Screenshots for marketplace
+├── skills/             # Custom skills (currently empty)
+├── plugin.json         # Plugin manifest
 └── README.md          # This file
 ```
 
@@ -99,7 +109,7 @@ Debug CopilotKit integration issues:
 
 **Usage**: `/copilotkit-debug` then describe the issue
 
-## Available Skills
+## Available Agents
 
 ### `copilotkit-expert`
 Specialized AI agent expert in CopilotKit framework:
@@ -109,9 +119,11 @@ Specialized AI agent expert in CopilotKit framework:
 - Debugging and optimization guidance
 - Access to VIBE CODING MCP for real-time docs
 
-**Activation**: The skill activates automatically when CopilotKit topics are discussed, or request it explicitly.
+**Location**: `agents/copilotkit-expert.md`
 
-**See**: [COPILOTKIT_PLUGIN.md](./COPILOTKIT_PLUGIN.md) for full documentation
+**Activation**: The agent activates automatically when CopilotKit topics are discussed, or request it explicitly.
+
+**See**: [docs/COPILOTKIT_PLUGIN.md](./docs/COPILOTKIT_PLUGIN.md) for full documentation
 
 ## 🚀 CopilotKit Plugin
 
@@ -135,9 +147,9 @@ This project includes a comprehensive **CopilotKit Expert Plugin** that provides
    "How do I implement human-in-the-loop with CopilotKit?"
    ```
 
-3. **Reference Patterns**: Check `copilotkit-patterns.md` for examples
+3. **Reference Patterns**: Check `docs/copilotkit-patterns.md` for examples
 
-**Full Plugin Documentation**: [COPILOTKIT_PLUGIN.md](./COPILOTKIT_PLUGIN.md)
+**Full Plugin Documentation**: [docs/COPILOTKIT_PLUGIN.md](./docs/COPILOTKIT_PLUGIN.md)
 
 ## Creating Custom Commands
 
@@ -154,17 +166,29 @@ To create a new slash command:
    ```
 3. The command name will be the filename (e.g., `my-command.md` → `/my-command`)
 
+## Creating Custom Agents
+
+Agents are specialized AI assistants with deep domain expertise.
+
+To create an agent:
+
+1. Create a new `.md` file in `.claude/agents/`
+2. Add frontmatter with description and tags
+3. Define the agent's expertise, capabilities, and workflow
+4. Add the agent to `plugin.json` under `components.agents`
+
+Agents activate automatically based on context or can be explicitly invoked.
+
 ## Creating Custom Skills
 
-Skills are reusable, specialized agents that can be invoked during conversations.
+Skills are utility functions or helpers (currently this plugin has no skills, only agents).
 
 To create a skill:
 
 1. Create a new `.md` file in `.claude/skills/`
 2. Add frontmatter with description
-3. Define the skill's capabilities and workflow
-
-Skills are invoked differently than commands - they run as specialized sub-agents.
+3. Define the skill's capabilities
+4. Add the skill to `plugin.json` under `components.skills`
 
 ## Project Context
 
@@ -193,8 +217,10 @@ For best results:
 ### Project Documentation
 - [Project README](../README.md)
 - [Project Documentation (CLAUDE.md)](../CLAUDE.md)
-- [CopilotKit Plugin Documentation](./COPILOTKIT_PLUGIN.md)
-- [CopilotKit Patterns & Best Practices](./copilotkit-patterns.md)
+- [CopilotKit Plugin Documentation](./docs/COPILOTKIT_PLUGIN.md)
+- [CopilotKit Patterns & Best Practices](./docs/copilotkit-patterns.md)
+- [Quick Start Guide](./docs/QUICKSTART.md)
+- [MCP Setup](./docs/MCP_SETUP.md)
 
 ### Official Documentation
 - [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code)
