@@ -105,7 +105,7 @@
     "methods": [
       {
         "name": "Copy Files",
-        "command": "cp -r .claude/agents/copilotkit-expert.md /path/to/repo/.claude/agents/ && cp .claude/commands/copilotkit-*.md /path/to/repo/.claude/commands/ && cp -r .claude/docs/* /path/to/repo/.claude/docs/"
+"command": "mkdir -p /path/to/repo/.claude/agents /path/to/repo/.claude/commands /path/to/repo/.claude/docs && cp .claude/agents/copilotkit-expert.md /path/to/repo/.claude/agents/ && cp .claude/commands/copilotkit-*.md /path/to/repo/.claude/commands/ && cp -r .claude/docs/* /path/to/repo/.claude/docs/"
       },
       {
         "name": "Use Installer",
