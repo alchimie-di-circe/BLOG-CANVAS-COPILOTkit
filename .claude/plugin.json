@@ -11,11 +11,11 @@
     "langchain": ">=0.1.0"
   },
   "components": {
-    "skills": [
+    "agents": [
       {
         "name": "copilotkit-expert",
-        "file": "skills/copilotkit-expert.md",
-        "description": "Main expert agent with deep CopilotKit knowledge",
+        "file": "agents/copilotkit-expert.md",
+        "description": "Specialized agent with deep CopilotKit, AG-UI, and AI framework knowledge",
         "tags": [
           "copilotkit",
           "ag-ui",
@@ -27,6 +27,7 @@
         ]
       }
     ],
+    "skills": [],
     "commands": [
       {
         "name": "copilotkit-docs",
@@ -50,23 +51,28 @@
     "documentation": [
       {
         "name": "Plugin Documentation",
-        "file": "COPILOTKIT_PLUGIN.md",
+        "file": "docs/COPILOTKIT_PLUGIN.md",
         "type": "main"
       },
       {
         "name": "Quick Start Guide",
-        "file": "QUICKSTART.md",
+        "file": "docs/QUICKSTART.md",
         "type": "tutorial"
       },
       {
         "name": "Patterns & Best Practices",
-        "file": "copilotkit-patterns.md",
+        "file": "docs/copilotkit-patterns.md",
         "type": "reference"
       },
       {
         "name": "MCP Setup Guide",
-        "file": "MCP_SETUP.md",
+        "file": "docs/MCP_SETUP.md",
         "type": "setup"
+      },
+      {
+        "name": "Plugin Compliance",
+        "file": "docs/PLUGIN_COMPLIANCE.md",
+        "type": "reference"
       }
     ]
   },
@@ -99,7 +105,7 @@
     "methods": [
       {
         "name": "Copy Files",
-        "command": "cp -r .claude/skills/copilotkit-expert.md /path/to/repo/.claude/skills/ && cp .claude/commands/copilotkit-*.md /path/to/repo/.claude/commands/ && cp .claude/copilotkit-patterns.md /path/to/repo/.claude/"
+        "command": "cp -r .claude/agents/copilotkit-expert.md /path/to/repo/.claude/agents/ && cp .claude/commands/copilotkit-*.md /path/to/repo/.claude/commands/ && cp -r .claude/docs/* /path/to/repo/.claude/docs/"
       },
       {
         "name": "Use Installer",
@@ -112,7 +118,7 @@
     ],
     "postInstall": [
       "Configure VIBE CODING MCP: claude mcp add --transport sse copilotkit-mcp https://mcp.copilotkit.ai/sse",
-      "Read quickstart guide: .claude/QUICKSTART.md",
+      "Read quickstart guide: .claude/docs/QUICKSTART.md",
       "Try a command: /copilotkit-docs"
     ]
   },

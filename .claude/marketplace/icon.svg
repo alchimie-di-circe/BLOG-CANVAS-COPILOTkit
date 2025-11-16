@@ -1,0 +1,38 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="128" cy="128" r="120" fill="#8B5CF6"/>
+
+  <!-- Co-pilot icon representation -->
+  <!-- Main Agent Circle -->
+  <circle cx="128" cy="100" r="35" fill="#FFFFFF" opacity="0.9"/>
+
+  <!-- Connection Lines -->
+  <path d="M128 135 L128 165" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M128 100 L90 140" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <path d="M128 100 L166 140" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Sub Nodes -->
+  <circle cx="90" cy="160" r="20" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="166" cy="160" r="20" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="128" cy="185" r="20" fill="#FFFFFF" opacity="0.8"/>
+
+  <!-- Inner Details -->
+  <circle cx="128" cy="100" r="12" fill="#8B5CF6"/>
+  <circle cx="90" cy="160" r="8" fill="#8B5CF6"/>
+  <circle cx="166" cy="160" r="8" fill="#8B5CF6"/>
+  <circle cx="128" cy="185" r="8" fill="#8B5CF6"/>
+
+  <!-- Accent - Stars/Sparkles for AI -->
+  <path d="M200 60 L205 65 L210 60 L205 55 Z" fill="#FCD34D" opacity="0.9"/>
+  <path d="M50 70 L54 74 L58 70 L54 66 Z" fill="#FCD34D" opacity="0.9"/>
+  <path d="M220 140 L224 144 L228 140 L224 136 Z" fill="#FCD34D" opacity="0.8"/>
+
+  <!-- Subtle gradient overlay -->
+  <defs>
+    <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="120" fill="url(#overlay)"/>
+</svg>
