@@ -148,7 +148,8 @@ MIT License - Part of the BLOG-CANVAS-COPILOTkit project
 ## Version
 
 - **Plugin Version**: 1.0.0
-- **CopilotKit Compatibility**: v1.5.20+
+- **CopilotKit Backend (`copilotkit`)**: v1.5.20+
+- **CopilotKit Frontend (`@copilotkit/runtime`)**: v0.25.0+
 - **Claude Code**: Latest
 - **Last Updated**: 2025-11-16
 
