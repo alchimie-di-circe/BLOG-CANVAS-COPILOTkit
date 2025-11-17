@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { CanvasSession, ResearchState } from '@/lib/types';
+import type { CanvasSession, CanvasSessionMetadata, ResearchState } from '@/lib/types';
 
-const SESSIONS_STORAGE_KEY = 'canvas-sessions';
+const SESSIONS_INDEX_KEY = 'canvas-sessions-index';
 const ACTIVE_SESSION_KEY = 'active-canvas-session-id';
+const SESSION_KEY_PREFIX = 'canvas-session-';
 
 interface UseCanvasSessionsReturn {
     sessions: CanvasSession[];
@@ -50,41 +51,95 @@ function generatePreview(state: ResearchState): string {
     return 'New research canvas';
 }
 
-export function useCanvasSessions(): UseCanvasSessionsReturn {
-    const [sessions, setSessions] = useState<CanvasSession[]>([]);
-    const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+// Helper functions for individual session storage
+function getSessionKey(id: string): string {
+    return `${SESSION_KEY_PREFIX}${id}`;
+}
 
-    // Load sessions from localStorage on mount
+function saveSessionToStorage(session: CanvasSession): void {
+    try {
+        localStorage.setItem(getSessionKey(session.id), JSON.stringify(session));
+    } catch (error) {
+        console.error(`Error saving session ${session.id}:`, error);
+        throw error;
+    }
+}
+
+function loadSessionFromStorage(id: string): CanvasSession | null {
+    try {
+        const data = localStorage.getItem(getSessionKey(id));
+        return data ? JSON.parse(data) : null;
+    } catch (error) {
+        console.error(`Error loading session ${id}:`, error);
+        return null;
+    }
+}
+
+function deleteSessionFromStorage(id: string): void {
+    try {
+        localStorage.removeItem(getSessionKey(id));
+    } catch (error) {
+        console.error(`Error deleting session ${id}:`, error);
+    }
+}
+
+function saveSessionsIndex(index: CanvasSessionMetadata[]): void {
+    try {
+        localStorage.setItem(SESSIONS_INDEX_KEY, JSON.stringify(index));
+    } catch (error) {
+        console.error('Error saving sessions index:', error);
+        throw error;
+    }
+}
+
+function loadSessionsIndex(): CanvasSessionMetadata[] {
+    try {
+        const data = localStorage.getItem(SESSIONS_INDEX_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (error) {
+        console.error('Error loading sessions index:', error);
+        return [];
+    }
+}
+
+export function useCanvasSessions(): UseCanvasSessionsReturn {
+    const [sessionsMetadata, setSessionsMetadata] = useState<CanvasSessionMetadata[]>([]);
+    const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+    const [activeSession, setActiveSession] = useState<CanvasSession | null>(null);
+
+    // Load sessions index and active session on mount
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
         try {
-            const storedSessions = localStorage.getItem(SESSIONS_STORAGE_KEY);
+            const index = loadSessionsIndex();
+            setSessionsMetadata(index);
+
             const storedActiveId = localStorage.getItem(ACTIVE_SESSION_KEY);
-
-            if (storedSessions) {
-                const parsed = JSON.parse(storedSessions);
-                setSessions(parsed);
-            }
-
             if (storedActiveId) {
                 setActiveSessionId(storedActiveId);
+                const session = loadSessionFromStorage(storedActiveId);
+                if (session) {
+                    setActiveSession(session);
+                }
             }
         } catch (error) {
             console.error('Error loading canvas sessions:', error);
         }
     }, []);
 
-    // Save sessions to localStorage whenever they change
+    // Load active session when activeSessionId changes
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        try {
-            localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
-        } catch (error) {
-            console.error('Error saving canvas sessions:', error);
+        if (!activeSessionId) {
+            setActiveSession(null);
+            return;
         }
-    }, [sessions]);
+
+        const session = loadSessionFromStorage(activeSessionId);
+        if (session) {
+            setActiveSession(session);
+        }
+    }, [activeSessionId]);
 
     // Save active session ID to localStorage
     useEffect(() => {
@@ -111,48 +166,113 @@ export function useCanvasSessions(): UseCanvasSessionsReturn {
             preview: 'New research canvas'
         };
 
-        setSessions(prev => [newSession, ...prev]);
+        // Save the session to its own storage key
+        saveSessionToStorage(newSession);
+
+        // Update the index
+        const newMetadata: CanvasSessionMetadata = {
+            id: newSession.id,
+            title: newSession.title,
+            createdAt: newSession.createdAt,
+            updatedAt: newSession.updatedAt,
+            preview: newSession.preview
+        };
+        const updatedIndex = [newMetadata, ...sessionsMetadata];
+        setSessionsMetadata(updatedIndex);
+        saveSessionsIndex(updatedIndex);
+
+        // Set as active session
         setActiveSessionId(newSession.id);
+        setActiveSession(newSession);
 
         return newSession;
-    }, []);
+    }, [sessionsMetadata]);
 
     const updateSession = useCallback((id: string, state: ResearchState) => {
-        setSessions(prev => prev.map(session => {
-            if (session.id === id) {
+        const session = loadSessionFromStorage(id);
+        if (!session) return;
+
+        const updatedSession: CanvasSession = {
+            ...session,
+            title: state.title || session.title,
+            updatedAt: Date.now(),
+            state,
+            preview: generatePreview(state)
+        };
+
+        // Save the updated session
+        saveSessionToStorage(updatedSession);
+
+        // Update the index
+        const updatedIndex = sessionsMetadata.map(meta => {
+            if (meta.id === id) {
                 return {
-                    ...session,
-                    title: state.title || session.title,
-                    updatedAt: Date.now(),
-                    state,
-                    preview: generatePreview(state)
+                    id: updatedSession.id,
+                    title: updatedSession.title,
+                    createdAt: updatedSession.createdAt,
+                    updatedAt: updatedSession.updatedAt,
+                    preview: updatedSession.preview
                 };
             }
-            return session;
-        }));
-    }, []);
+            return meta;
+        });
+        setSessionsMetadata(updatedIndex);
+        saveSessionsIndex(updatedIndex);
+
+        // Update active session if it's the one being updated
+        if (activeSessionId === id) {
+            setActiveSession(updatedSession);
+        }
+    }, [sessionsMetadata, activeSessionId]);
 
     const deleteSession = useCallback((id: string) => {
-        setSessions(prev => prev.filter(session => session.id !== id));
+        // Delete the session from storage
+        deleteSessionFromStorage(id);
+
+        // Update the index
+        const updatedIndex = sessionsMetadata.filter(meta => meta.id !== id);
+        setSessionsMetadata(updatedIndex);
+        saveSessionsIndex(updatedIndex);
 
         // If we're deleting the active session, clear it
         if (activeSessionId === id) {
             setActiveSessionId(null);
+            setActiveSession(null);
         }
-    }, [activeSessionId]);
+    }, [sessionsMetadata, activeSessionId]);
 
     const renameSession = useCallback((id: string, newTitle: string) => {
-        setSessions(prev => prev.map(session => {
-            if (session.id === id) {
+        const session = loadSessionFromStorage(id);
+        if (!session) return;
+
+        const updatedSession: CanvasSession = {
+            ...session,
+            title: newTitle,
+            updatedAt: Date.now()
+        };
+
+        // Save the updated session
+        saveSessionToStorage(updatedSession);
+
+        // Update the index
+        const updatedIndex = sessionsMetadata.map(meta => {
+            if (meta.id === id) {
                 return {
-                    ...session,
+                    ...meta,
                     title: newTitle,
                     updatedAt: Date.now()
                 };
             }
-            return session;
-        }));
-    }, []);
+            return meta;
+        });
+        setSessionsMetadata(updatedIndex);
+        saveSessionsIndex(updatedIndex);
+
+        // Update active session if it's the one being renamed
+        if (activeSessionId === id) {
+            setActiveSession(updatedSession);
+        }
+    }, [sessionsMetadata, activeSessionId]);
 
     const switchSession = useCallback((id: string) => {
         setActiveSessionId(id);
@@ -160,9 +280,22 @@ export function useCanvasSessions(): UseCanvasSessionsReturn {
 
     const clearActiveSession = useCallback(() => {
         setActiveSessionId(null);
+        setActiveSession(null);
     }, []);
 
-    const activeSession = sessions.find(s => s.id === activeSessionId) || null;
+    // Convert metadata to full sessions list for compatibility
+    const sessions: CanvasSession[] = sessionsMetadata.map(meta => {
+        // If this is the active session, use the cached version
+        if (activeSession && activeSession.id === meta.id) {
+            return activeSession;
+        }
+        // Otherwise, load from storage (lazy loading)
+        const session = loadSessionFromStorage(meta.id);
+        return session || {
+            ...meta,
+            state: getInitialState()
+        } as CanvasSession;
+    });
 
     return {
         sessions,
