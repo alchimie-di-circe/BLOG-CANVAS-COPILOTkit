@@ -1,6 +1,7 @@
 // AG-UI Migration: Types now match Pydantic models exactly for proper schema generation
 
 export interface Section {
+    id?: string;
     idx: number;
     title: string;
     content: string;
@@ -56,4 +57,22 @@ export interface ResearchState {
 }
 
 // export type Document = Pick<ResearchState, 'sections' | 'title' | 'intro' | 'outline' | 'conclusion' | 'cited_sources'>
+
+// Canvas Session Management Types
+export interface CanvasSession {
+    id: string;
+    title: string;
+    createdAt: number;
+    updatedAt: number;
+    state: ResearchState;
+    preview?: string; // Short preview of the content
+}
+
+export interface CanvasSessionMetadata {
+    id: string;
+    title: string;
+    createdAt: number;
+    updatedAt: number;
+    preview?: string;
+}
 
