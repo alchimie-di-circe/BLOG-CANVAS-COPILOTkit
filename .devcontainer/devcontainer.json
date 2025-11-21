@@ -28,7 +28,8 @@
         "formulahendry.auto-rename-tag",
         "PKief.material-icon-theme",
         "usernamehw.errorlens",
-        "ms-vscode.vscode-typescript-next"
+        "ms-vscode.vscode-typescript-next",
+        "traycer.traycer"
       ],
       "settings": {
         "editor.formatOnSave": true,
