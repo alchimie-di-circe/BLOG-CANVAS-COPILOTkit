@@ -17,6 +17,7 @@
     "vscode": {
       "extensions": [
         "anthropic.claude-code",
+        "kilocode.kilo-code",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
