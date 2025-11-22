@@ -1,7 +1,7 @@
 ---
-description: CopilotKit Expert - Specialized agent for CopilotKit, AG-UI, and AI framework integrations
-tags: [copilotkit, ag-ui, langgraph, langchain, anthropic, ai-frameworks]
-version: 1.0.0
+name: copilotkit-expert
+description: Specialized expert agent for CopilotKit framework, AG-UI integration, and modern AI agent development patterns. Helps with CoAgents architecture, state management, streaming patterns, LangGraph integration, and framework-specific guidance.
+model: sonnet
 ---
 
 # CopilotKit Expert Agent

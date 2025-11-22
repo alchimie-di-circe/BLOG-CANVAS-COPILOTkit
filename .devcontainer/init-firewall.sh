@@ -66,7 +66,7 @@ while read -r cidr; do
         exit 1
     fi
     echo "Adding GitHub range $cidr"
-    ipset add allowed-domains "$cidr"
+    ipset add allowed-domains "$cidr" 2>/dev/null || true
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
 # Resolve and add other allowed domains
@@ -86,6 +86,7 @@ for domain in \
     "smith.langchain.com" \
     "api.cloud.copilotkit.ai" \
     "cloud.copilotkit.ai" \
+    "mcp.copilotkit.ai" \
     "pypi.org" \
     "files.pythonhosted.org" \
     "vercel.com" \
@@ -103,7 +104,7 @@ for domain in \
             exit 1
         fi
         echo "Adding $ip for $domain"
-        ipset add allowed-domains "$ip"
+        ipset add allowed-domains "$ip" 2>/dev/null || true
     done < <(echo "$ips")
 done
 
